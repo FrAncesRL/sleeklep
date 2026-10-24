@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de QR para tu demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f5f7fa; color: #111827; padding: 2rem; }
+  .container { max-width: 520px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+  h1 { font-size: 1.25rem; margin-bottom: 1rem; color: #111827; }
+  label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: .4rem; color: #374151; }
+  input { width: 100%; padding: .6rem .75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; outline: none; }
+  input:focus { border-color: #2563eb; }
+  .actions { display: flex; gap: .5rem; margin-bottom: 1rem; }
+  button { flex: 1; padding: .6rem 1rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  button.primary { background: #2563eb; color: #fff; }
+  button.primary:hover { background: #1d4ed8; }
+  button.secondary { background: #f3f4f6; color: #111827; }
+  button.secondary:hover { background: #e5e7eb; }
+  button.secondary:disabled { opacity: .5; cursor: not-allowed; }
+  #qr { margin-top: 1rem; text-align: center; min-height: 340px; display: flex; align-items: center; justify-content: center; }
+  #qr canvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+  #status { margin-top: .5rem; font-size: .85rem; min-height: 1.2em; }
+  .hint { font-size: .8rem; color: #6b7280; margin-top: .75rem; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📱 Generador de código PR</h1>
+  <label for="url">Pega aquí la URL pública de tu demo</label>
+  <input type="url" id="url" placeholder="https://tuusuario.github.io/sleeklep/">
+  <div class="actions">
+    <button type="button" class="primary" id="btnGenerar">Generar QR</button>
+    <button type="button" class="secondary" id="btnDescargar" disabled>Descargar PNG</button>
+  </div>
+  <div id="qr"></div>
+  <div id="status"></div>
+  <p class="hint">Importante: el QR debe apuntar a una URL en internet (https://...), no a una ruta local como file:///C:/..., para que otras personas puedan abrirlo desde sus teléfonos.</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const urlInput = document.getElementById('url');
+const qrContainer = document.getElementById('qr');
+const btnGenerar = document.getElementById('btnGenerar');
+const btnDescargar = document.getElementById('btnDescargar');
+const status = document.getElementById('status');
+
+let qrInstance = null;
+
+btnGenerar.addEventListener('click', () => {
+  const text = urlInput.value.trim();
+  if (!text) { status.textContent = 'Ingresa una URL válida.'; status.style.color = '#dc2626'; return; }
+  try { new URL(text); } catch { status.textContent = 'URL no válida. Debe empezar con http:// o https://'; status.style.color = '#dc2626'; return; }
+  qrContainer.innerHTML = '';
+  status.textContent = '';
+  try {
+    qrInstance = new QRCode(qrContainer, {
+      text: text,
+      width: 340,
+      height: 340,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    btnDescargar.disabled = false;
+    status.textContent = 'QR generado. Haz clic en Descargar PNG.';
+    status.style.color = '#16a34a';
+  } catch (e) {
+    status.textContent = 'Error al generar el QR.';
+    status.style.color = '#dc2626';
+  }
+});
+
+btnDescargar.addEventListener('click', () => {
+  const canvas = qrContainer.querySelector('canvat�);
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = 'qr-demo-sleeklep.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+</script>
+</body>
+</html>
